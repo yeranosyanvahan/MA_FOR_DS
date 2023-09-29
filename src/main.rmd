@@ -26,8 +26,8 @@ adoption = diff(total)
 ```
 
 ```{r}
-bass_m = nls(adoption ~ m*(((p+q)ˆ2/p)*exp(-(p+q)*t))/
-start=c(list(m=sum(sales),p=0.02,q=0.4)))
+#bass_m = nls(adoption ~ m*(((p+q)ˆ2/p)*exp(-(p+q)*t))/
+#start=c(list(m=sum(sales),p=0.02,q=0.4)))
 ```
 
 ```{r pressure, echo=FALSE}
