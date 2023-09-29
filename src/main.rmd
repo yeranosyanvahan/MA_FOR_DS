@@ -1,0 +1,36 @@
+---
+title: "MA_FOR_DS"
+author: "Vahan Yeranosyan"
+date: "2023-09-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+libs<-c('ggplot2','ggpubr','knitr','diffusion')
+load_libraries<-function(libs){
+new_libs <- libs[!(libs %in% installed.packages()[,"Package"])]
+if(length(new_libs)>0) {install.packages(new_libs)}
+lapply(libs, library, character.only = TRUE)
+}
+load_libraries(libs)
+```
+
+## Data
+
+https://www.statista.com/statistics/1221051/apple-watch-users-worldwide/
+
+```{r cars}
+total = c(10,18,32,50,72,102)
+adoption = diff(total)
+```
+
+```{r}
+bass_m = nls(adoption ~ m*(((p+q)ˆ2/p)*exp(-(p+q)*t))/
+start=c(list(m=sum(sales),p=0.02,q=0.4)))
+```
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
