@@ -5,7 +5,7 @@ date: "2023-09-27"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 libs<-c('ggplot2','ggpubr','knitr','diffusion')
 load_libraries<-function(libs){
@@ -16,21 +16,91 @@ lapply(libs, library, character.only = TRUE)
 load_libraries(libs)
 ```
 
+
+## Product
+ The Aura Strap 2 is a smart strap for the Apple Watch that measures body fat, muscle, protein and hydration levels (among other things), adding functionality to your smartwatch. It also offers personalized diet and exercise advice via its iOS app. 
+ This product targets old people that have heath problems that need constant monitoring of those functions.
+ 
+**[link](https://time.com/collection/best-inventions-2022/6230644/aura-strap-2/)**
+
+## Market estimation
+According to one of news **[articles](https://appleinsider.com/articles/22/10/14/apple-watch-sets-new-us-record-now-owned-by-30-of-iphone-users#:~:text=Apple%20Watch%20has%20repeatedly%20dominated,active%20users%20in%20Q2%202021.)**, We get that 30% of Iphone users use Apple Watch
+
+
+30% of apple users use apple watch as of 2021 Q2 exceeding 100 million.
+considering that 15% of population are elderly.
+We can do the following calculation.
+
+70% of apple users (230mil) don't use apple watch and 15% (34mil) of them are elderly, which would be our market potential. 
+
+
 ## Data
 
-https://www.statista.com/statistics/1221051/apple-watch-users-worldwide/
+link: https://www.statista.com/statistics/1221051/apple-watch-users-worldwide/
+
+This data is cumulative, so we need to make it to represent current year.
 
 ```{r cars}
 total = c(10,18,32,50,72,102)
-adoption = diff(total)
+sales = data.frame(cumulative = total, sales = c(total[1],diff(total)),
+                   year = c(1:6) + 2014)[-1,] # remove the 1st row
+sales$time = 1:5
+sales
+```
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+
+ggplot(data = sales, aes(x = year, y = sales)) +geom_bar(stat = 'identity')  +
+ggtitle('Smartwatch sales') + xlab("Year") + ylab("Sales (Volume in mln units)")
+  
+```
+
+
+```{r}
+t = 1:(length(sales) + 1)
+bass_m = nls(sales$sales ~ (m*(((p+q)^2/p)*exp(-(p+q)*t))) / (1+(q/p)*exp(-(p+q)*t))^2 ,
+start=c(list(m=sum(sales$sales),p=0.02,q=0.4)))
+
+p = coef(bass_m)["p"]
+q =  coef(bass_m)["q"]
+m =  coef(bass_m)["m"]
+bass.f = function(t,p,q){((p+q)**2/p)*exp(-(p+q)*t)/ (1+(q/p)*exp(-(p+q)*t))**2}
+
+summary(bass_m)
 ```
 
 ```{r}
-#bass_m = nls(adoption ~ m*(((p+q)ˆ2/p)*exp(-(p+q)*t))/
-#start=c(list(m=sum(sales),p=0.02,q=0.4)))
-```
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+sales$pred = bass.f(sales$time, p, q) * m
+
+ggplot(data = sales, aes(x = year, y = sales)) +
+  geom_bar(stat = 'identity') +
+  xlab("Year") +
+  ylab("Sales (Volume in mln units)")+
+  ggtitle('Bass Modelling of Apple Watch sales (mln units)')+
+  geom_point(mapping = aes(x=year, y=pred), color = 'red', size = 3)
+```
+<br/>
+Considering that our model predicts M = 483, which is above the number of iphone users. This score is above the market potential of apple watch. The score of market potential is unreliable so I will choose the M=34 as a Fermi Estimation stated above.
+
+
+<br/>
+
+```{r}
+m = 34
+t = (1:5)
+aura_sales = bass.f(t, p, q) * m
+plot_data = data.frame(
+  Year = 2024:2028, 
+  Predicted_Sales = aura_sales)
+
+ggplot(data = plot_data, aes(x = as.factor(Year), y = aura_sales)) +
+  geom_bar(stat = 'identity') +
+  labs(title = 'Predicted Sales of Aura Strap 2',
+       x = 'Year',
+       y = 'Predicted Sales (in million units)')
+
 ```
 
